@@ -9,9 +9,14 @@
         <button @click="$router.push('/tickets')" class="flex items-center gap-2 text-sm text-gray-600 hover:text-blue-600">
           <ArrowLeft :size="16" /> Back to Tickets
         </button>
-        <button v-if="!isEditing" @click="isEditing = true" class="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700">
-          <Edit :size="16" /> Edit
-        </button>
+        <div v-if="!isEditing" class="flex items-center gap-2">
+          <button @click="handleDeleteClick" class="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700">
+            <Trash2 :size="16" /> Delete
+          </button>
+          <button @click="isEditing = true" class="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700">
+            <Edit :size="16" /> Edit
+          </button>
+        </div>
       </div>
 
       <div v-if="isEditing" class="bg-white p-6 rounded-lg shadow-md border border-slate-200">
@@ -92,6 +97,14 @@
           </div>
         </div>
       </div>
+      <ConfirmModal
+        :loading="isDeleting"
+        :is-open="isModalOpen"
+        :on-close="() => isModalOpen = false"
+        :on-confirm="handleConfirmDelete"
+        title="Delete Ticket"
+        :message="`Are you sure you want to delete the ticket '${ticket.title}' ? This action cannot be undone.`"
+      />
     </div>
   </DashboardLayout>
 </template>
@@ -101,7 +114,8 @@ import { ref, watch, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { toast } from 'vue3-toastify'
 import { useMutation } from '@tanstack/vue-query'
-import { Loader2, ArrowLeft, Edit } from 'lucide-vue-next'
+import { isAxiosError } from 'axios'
+import { Loader2, ArrowLeft, Edit, Trash2 } from 'lucide-vue-next'
 import DashboardLayout from '../../components/layouts/DashboardLayout.vue'
 import Form from '../../components/dashboard/Form.vue'
 import Input from '../../components/dashboard/Input.vue'
@@ -110,6 +124,7 @@ import Select from '../../components/dashboard/Select.vue'
 import { useAuthStore } from '../../stores/auth'
 import { useTicketStore } from '../../stores/tickets'
 import { apiClient } from '../../api/client'
+import ConfirmModal from '../../components/ui/ConfirmModal.vue'
 import type { TicketType } from '../../types'
 
 const route = useRoute()
@@ -121,6 +136,8 @@ const ticket = ref<TicketType | null>(null)
 const form = ref<TicketType | null>(null)
 const isEditing = ref(false)
 const error = ref(false)
+const isDeleting = ref(false)
+const isModalOpen = ref(false)
 
 const { mutateAsync: updateTicket, isPending } = useMutation({
   mutationFn: async (ticketData: any) => {
@@ -149,6 +166,28 @@ const { mutateAsync: updateTicket, isPending } = useMutation({
   }
 })
 
+const { mutateAsync: deleteTicketMutation } = useMutation({
+  mutationFn: async ({ id, ticketId }: { id: string; ticketId: string }) => {
+    const res = await apiClient.delete(`/tickets/${id}`, {
+      data: { ticketId }
+    })
+    return res.data
+  },
+  onSuccess: (data) => {
+    isModalOpen.value = false
+    ticketStore.deleteTicket(route.params.id as string)
+    toast.success(data.message)
+    router.push('/tickets')
+  },
+  onError: (err: any) => {
+    if (isAxiosError(err)) {
+      toast.error(err.response?.data.message)
+    } else {
+      toast.error('Something went wrong')
+    }
+  }
+})
+
 const handleUpdate = async (e: Event) => {
   e.preventDefault()
 
@@ -166,6 +205,19 @@ const handleUpdate = async (e: Event) => {
     priority: form.value.priority,
     userId: authStore.user?.id
   })
+}
+
+const handleDeleteClick = () => {
+  isModalOpen.value = true
+}
+
+const handleConfirmDelete = async () => {
+  isDeleting.value = true
+  try {
+    await deleteTicketMutation({ id: authStore.user!.id, ticketId: route.params.id as string })
+  } finally {
+    isDeleting.value = false
+  }
 }
 
 const cancelEdit = () => {
