@@ -19,7 +19,7 @@ const router = createRouter({
 
 router.beforeEach((to: RouteLocationNormalized, from: RouteLocationNormalized, next: NavigationGuardNext) => {
   const authStore = useAuthStore()
-
+  console.log(from.fullPath)
   if (to.meta.requiresAuth && !authStore.isAuthenticated) {
     next('/signin')
   } else if (to.meta.requiresGuest && authStore.isAuthenticated) {
