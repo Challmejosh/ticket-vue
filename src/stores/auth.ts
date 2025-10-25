@@ -9,16 +9,16 @@ export const useAuthStore = defineStore('auth', () => {
 
   const saveUser = (userData: User) => {
     user.value = userData
-    localStorage.setItem('user', JSON.stringify(userData))
+    localStorage.setItem('ticketapp_session', JSON.stringify(userData))
   }
 
   const logOut = () => {
     user.value = null
-    localStorage.removeItem('user')
+    localStorage.removeItem('ticketapp_session')
   }
 
   const initAuth = () => {
-    const storedUser = localStorage.getItem('user')
+    const storedUser = localStorage.getItem('ticketapp_session')
     if (storedUser) {
       user.value = JSON.parse(storedUser)
     }

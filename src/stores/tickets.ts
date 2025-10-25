@@ -20,10 +20,15 @@ export const useTicketStore = defineStore('tickets', () => {
     }
   }
 
+  const deleteTicket = (ticketId: string) => {
+    tickets.value = tickets.value.filter(t => t._id !== ticketId)
+  }
+
   return {
     tickets,
     saveTickets,
     addTicket,
-    updateTicket
+    updateTicket,
+    deleteTicket
   }
 })

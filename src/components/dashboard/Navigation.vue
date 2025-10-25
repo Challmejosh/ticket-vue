@@ -127,7 +127,7 @@ const otherLinks = [
     text: 'logout',
     click: () => {
       authStore.logOut()
-      router.push('/signin')
+      router.push('/')
     },
     href: '/signin',
     icon: LogOut
