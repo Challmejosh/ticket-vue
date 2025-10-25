@@ -93,7 +93,7 @@ const passwordErrorMessage = computed(() => {
     return "Password cannot contain name or email"
   }
   if (!isPasswordValid.value) {
-    return "Password must contain at least one uppercase letter, one number, and one special character"
+    return "At least uppercase, number & symbol."
   }
   return "Please enter a valid password"
 })
@@ -105,7 +105,7 @@ const confirmPasswordErrorMessage = computed(() => {
     return "Password cannot contain name or email"
   }
   if (!isPasswordValid.value) {
-    return "Require at least uppercase, number & symbol."
+    return "At least uppercase, number & symbol."
   }
   return "Please enter a valid password"
 })

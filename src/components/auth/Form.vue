@@ -1,7 +1,7 @@
 <template>
   <form
     @submit="$emit('submit', $event)"
-    class="flex flex-col gap-6 items-center justify-center shadow-lg rounded-lg bg-white dark:bg-slate-900/70 dark:backdrop-blur-sm p-8 shadow-soft border border-slate-200 dark:border-slate-800"
+    class="flex flex-col w-full sm:w-fit sm:min-w-[500px] gap-6 items-center justify-center shadow-lg rounded-lg bg-white dark:bg-slate-900/70 dark:backdrop-blur-sm p-8 shadow-soft border border-slate-200 dark:border-slate-800"
   >
     <div class="flex flex-col gap-2 items-center justify-center text-center">
       <h2 class="text-2xl capitalize font-bold text-text-light dark:text-text-dark">
